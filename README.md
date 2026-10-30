@@ -106,6 +106,36 @@ provider, streaming, history and storage choice.
   the OpenAI format. The key is optional and is sent as a bearer token. The
   server must allow CORS from the app's origin.
 
+### Local endpoints that do not send CORS headers
+
+Many local servers answer `curl` on the same machine but send no
+`Access-Control-Allow-Origin`, so the browser blocks the request and the app
+reports _"Could not reach …"_. Two ways to fix it:
+
+1. **Let the server answer for this origin** (preferred, no moving parts). For
+   [llama.cpp](https://github.com/ggml-org/llama.cpp) pass
+   `--cors-origins http://localhost:8000`; for a Strata `serve` server add
+   `"cors_origins": ["http://localhost:8000"]` to its launch config; for Ollama
+   start with `OLLAMA_ORIGINS=http://localhost:8000`. Restart the server.
+2. **Proxy it through the dev server** (works without touching the server, and
+   without restarting a model that takes minutes to load). `dev/api-proxy.mjs`
+   mirrors the endpoint under the app's own origin, which makes the request
+   same-origin and CORS irrelevant:
+
+   ```text
+   browser → http://localhost:8000/v1/chat/completions
+           → http://127.0.0.1:8080/v1/chat/completions
+   ```
+
+   The upstream is `http://127.0.0.1:8080/v1` by default; change it with
+   `UPSTREAM_API=http://127.0.0.1:1234/v1 npm start` or disable it with
+   `UPSTREAM_API= npm start`. Then choose **Custom (OpenAI-compatible)** in the
+   app and set the base URL to `http://localhost:8000/v1` — the dev server's own
+   origin, not the upstream's.
+
+   The proxy forwards `/v1/*` only (streaming included) and nothing else; it is
+   part of the dev server config, so a production build never includes it.
+
 ## Security: keys stay in your browser
 
 - Nothing passes through a backend you or this project control. Each request
