@@ -1,0 +1,47 @@
+{
+  "name": "ine-statistics-explorer",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Accessible INE statistics explorer built with Lit and sea-lion.",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "start": "web-dev-server --config web-dev-server.config.js",
+    "build": "rollup -c",
+    "preview": "web-dev-server --root-dir dist --port 8001",
+    "test": "web-test-runner --config web-test-runner.config.js",
+    "test:watch": "npm test -- --watch",
+    "lint": "eslint . && prettier . --check",
+    "format": "prettier . --write"
+  },
+  "dependencies": {
+    "@yesobo/sea-lion": "^1.0.1",
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "@open-wc/eslint-config": "^13.1.0",
+    "@open-wc/testing": "^5.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.0",
+    "@rollup/plugin-terser": "^0.4.4",
+    "@web/dev-server": "^1.0.0",
+    "@web/rollup-plugin-html": "^4.0.0",
+    "@web/test-runner": "^1.0.0",
+    "@web/test-runner-playwright": "^1.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-prettier": "^10.0.0",
+    "eslint-plugin-html": "^8.0.0",
+    "eslint-plugin-lit": "^2.3.1",
+    "eslint-plugin-lit-a11y": "^5.1.1",
+    "eslint-plugin-no-only-tests": "^3.1.0",
+    "eslint-plugin-wc": "^3.0.0",
+    "prettier": "^3.0.0",
+    "rollup": "^4.0.0"
+  },
+  "prettier": {
+    "singleQuote": true,
+    "arrowParens": "avoid",
+    "trailingComma": "all"
+  }
+}
