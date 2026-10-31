@@ -1,0 +1,20 @@
+:root {
+  color-scheme: light;
+  font-family: Inter, 'Segoe UI', system-ui, sans-serif;
+  color: #19332f;
+  background: #f4f6f3;
+  --sl-primary: #176653;
+  --sl-primary-foreground: #fff;
+  --sl-ring: #247b67;
+  --sl-radius: 0.7rem;
+}
+body {
+  margin: 0;
+}
+* {
+  box-sizing: border-box;
+}
+noscript {
+  display: block;
+  padding: 2rem;
+}
