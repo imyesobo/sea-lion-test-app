@@ -7,8 +7,8 @@ components library, and follows the [Open Web Components](https://open-wc.org)
 and [Modern Web](https://modern-web.dev) recommendations.
 
 - Supported providers: **OpenAI**, **Anthropic**, **Google Gemini**, **xAI Grok**,
-  a **local Ollama** server and any **OpenAI-compatible endpoint** (LM Studio,
-  vLLM, OpenRouter, Groq, …).
+  **OpenRouter**, a **local Ollama** server and any **OpenAI-compatible
+  endpoint** (LM Studio, vLLM, Groq, …).
 - Answers can be streamed token by token (SSE / NDJSON over `fetch` +
   `ReadableStream`) or returned in one piece. While an answer streams you'll see
   a typing indicator and a **Stop** button.
@@ -52,14 +52,15 @@ automatically.
 1. Open **Settings** (it is already open on wide screens and on first use).
 2. Pick a **Provider**. Only the fields that provider needs are shown:
 
-   | Provider                   | API key  | Base URL                                   | Default model       |
-   | -------------------------- | -------- | ------------------------------------------ | ------------------- |
-   | OpenAI                     | required | –                                          | `gpt-4o-mini`       |
-   | Anthropic                  | required | –                                          | `claude-sonnet-4-5` |
-   | Google Gemini              | required | –                                          | `gemini-2.5-flash`  |
-   | xAI Grok                   | required | –                                          | `grok-4`            |
-   | Ollama (local)             | –        | optional (`http://localhost:11434`)        | `llama3.2`          |
-   | Custom (OpenAI-compatible) | optional | required (e.g. `http://localhost:1234/v1`) | –                   |
+   | Provider                   | API key  | Base URL                                   | Default model        |
+   | -------------------------- | -------- | ------------------------------------------ | -------------------- |
+   | OpenAI                     | required | –                                          | `gpt-4o-mini`        |
+   | Anthropic                  | required | –                                          | `claude-sonnet-4-5`  |
+   | Google Gemini              | required | –                                          | `gemini-2.5-flash`   |
+   | xAI Grok                   | required | –                                          | `grok-4`             |
+   | OpenRouter                 | required | –                                          | `openai/gpt-4o-mini` |
+   | Ollama (local)             | –        | optional (`http://localhost:11434`)        | `llama3.2`           |
+   | Custom (OpenAI-compatible) | optional | required (e.g. `http://localhost:1234/v1`) | –                    |
 
 3. Enter the API key (and the model / base URL if needed).
 4. Choose where to **remember credentials**:
@@ -95,6 +96,12 @@ provider, streaming, history and storage choice.
 - **Google Gemini**: <https://aistudio.google.com/app/apikey>. The key is sent in
   the `x-goog-api-key` header, never in the URL.
 - **xAI Grok**: <https://console.x.ai>
+- **OpenRouter**: <https://openrouter.ai/keys>. One key talks to hundreds of
+  models through an OpenAI-compatible gateway, so model ids are namespaced by
+  vendor — e.g. `anthropic/claude-sonnet-4.5`, `meta-llama/llama-3.3-70b-instruct`,
+  `openai/gpt-4o-mini`. Requests carry OpenRouter's optional site attribution
+  headers (`X-Title`, `HTTP-Referer` set to this page's origin); pass
+  `{ siteUrl: '' }` to `OpenRouterClient` to send neither.
 - **Ollama**: no key. [Install Ollama](https://ollama.com/download), pull a
   model (`ollama pull llama3.2`) and allow the app's origin:
 
@@ -166,7 +173,7 @@ reports _"Could not reach …"_. Two ways to fix it:
 │   │   ├── ai-client.js       # createChatClient(providerId, options) factory
 │   │   ├── clients/           # one thin client per provider API
 │   │   │   ├── chat-client.js     # base class: validation, fetch, errors, streaming
-│   │   │   ├── openai-client.js   # OpenAI, xAI, generic OpenAI-compatible
+│   │   │   ├── openai-client.js   # OpenAI, xAI, OpenRouter, generic OpenAI-compatible
 │   │   │   ├── anthropic-client.js
 │   │   │   ├── gemini-client.js
 │   │   │   └── ollama-client.js
@@ -268,11 +275,12 @@ The tests use `@open-wc/testing`, which bundles Mocha, Chai, `fixture()` and
 an a11y helper. They run in a real browser through `@web/test-runner`, and
 `fetch` is mocked so they never hit the network.
 
-| File                            | Covers                                                                                |
-| ------------------------------- | ------------------------------------------------------------------------------------- |
-| `test/storage.test.js`          | credentials local/session switching, clearing, corrupted data, settings, history      |
-| `test/streams.test.js`          | line splitting, SSE parsing across chunk boundaries, NDJSON                           |
-| `test/openai-client.test.js`    | headers/body, non-streaming, streaming, HTTP/stream/network errors, abort, validation |
-| `test/provider-clients.test.js` | Anthropic, Gemini and Ollama request/response shapes and streaming, client factory    |
-| `test/chat-components.test.js`  | `<chat-message>` rendering and a11y, `<chat-composer>` Enter/Shift+Enter/button/stop  |
-| `test/ai-chat-app.test.js`      | validation errors, streaming into the list, provider errors, history restore/clear    |
+| File                             | Covers                                                                                |
+| -------------------------------- | ------------------------------------------------------------------------------------- |
+| `test/storage.test.js`           | credentials local/session switching, clearing, corrupted data, settings, history      |
+| `test/streams.test.js`           | line splitting, SSE parsing across chunk boundaries, NDJSON                           |
+| `test/openai-client.test.js`     | headers/body, non-streaming, streaming, HTTP/stream/network errors, abort, validation |
+| `test/provider-clients.test.js`  | Anthropic, Gemini and Ollama request/response shapes and streaming, client factory    |
+| `test/chat-components.test.js`   | `<chat-message>` rendering and a11y, `<chat-composer>` Enter/Shift+Enter/button/stop  |
+| `test/credentials-panel.test.js` | provider picker options, per-provider fields (key/base URL), OpenRouter wiring        |
+| `test/ai-chat-app.test.js`       | validation errors, streaming into the list, provider errors, history restore/clear    |

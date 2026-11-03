@@ -4,7 +4,7 @@
  * The UI uses this to decide which credential fields to show, and the client
  * factory uses it for default base URLs and models.
  *
- * @typedef {'openai' | 'anthropic' | 'gemini' | 'xai' | 'ollama' | 'custom'} ProviderId
+ * @typedef {'openai' | 'anthropic' | 'gemini' | 'xai' | 'openrouter' | 'ollama' | 'custom'} ProviderId
  *
  * @typedef {object} ProviderInfo
  * @property {ProviderId} id
@@ -63,6 +63,17 @@ export const PROVIDERS = Object.freeze([
     defaultBaseUrl: 'https://api.x.ai/v1',
     defaultModel: 'grok-4',
     keyUrl: 'https://console.x.ai',
+  },
+  {
+    id: 'openrouter',
+    label: 'OpenRouter',
+    requiresApiKey: true,
+    acceptsApiKey: true,
+    requiresBaseUrl: false,
+    acceptsBaseUrl: false,
+    defaultBaseUrl: 'https://openrouter.ai/api/v1',
+    defaultModel: 'openai/gpt-4o-mini',
+    keyUrl: 'https://openrouter.ai/keys',
   },
   {
     id: 'ollama',

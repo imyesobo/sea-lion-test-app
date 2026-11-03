@@ -4,6 +4,7 @@ import {
   CLIENTS,
   GeminiClient,
   OllamaClient,
+  OpenRouterClient,
   ProviderError,
   createChatClient,
 } from '../src/services/ai-client.js';
@@ -31,6 +32,21 @@ describe('createChatClient', () => {
 
   it('throws on unknown providers', () => {
     expect(() => createChatClient('nope')).to.throw(ProviderError);
+  });
+
+  it('wires the openrouter provider id to the OpenRouter gateway', async () => {
+    const { fetch, calls } = mockFetch(
+      jsonResponse({ choices: [{ message: { content: 'hi' } }] }),
+    );
+    const client = createChatClient('openrouter', { apiKey: 'sk-or', fetch });
+
+    expect(client).to.be.instanceOf(OpenRouterClient);
+    expect(
+      await client.chat({ model: 'openai/gpt-4o-mini', messages }),
+    ).to.equal('hi');
+    expect(calls[0].url).to.equal(
+      'https://openrouter.ai/api/v1/chat/completions',
+    );
   });
 });
 

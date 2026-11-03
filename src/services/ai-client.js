@@ -4,6 +4,7 @@ import { OllamaClient } from './clients/ollama-client.js';
 import {
   OpenAIClient,
   OpenAICompatibleClient,
+  OpenRouterClient,
   XAIClient,
 } from './clients/openai-client.js';
 import { ProviderError } from './errors.js';
@@ -15,6 +16,7 @@ export {
   OllamaClient,
   OpenAIClient,
   OpenAICompatibleClient,
+  OpenRouterClient,
   XAIClient,
 };
 export { ProviderError } from './errors.js';
@@ -25,6 +27,7 @@ export const CLIENTS = Object.freeze({
   anthropic: AnthropicClient,
   gemini: GeminiClient,
   xai: XAIClient,
+  openrouter: OpenRouterClient,
   ollama: OllamaClient,
   custom: OpenAICompatibleClient,
 });

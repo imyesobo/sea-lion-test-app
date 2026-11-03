@@ -2,6 +2,7 @@ import { expect } from '@open-wc/testing';
 import {
   OpenAIClient,
   OpenAICompatibleClient,
+  OpenRouterClient,
   XAIClient,
 } from '../src/services/clients/openai-client.js';
 import { ProviderError } from '../src/services/errors.js';
@@ -152,6 +153,97 @@ describe('XAIClient', () => {
       messages,
     });
     expect(calls[0].url).to.equal('https://api.x.ai/v1/chat/completions');
+  });
+});
+
+describe('OpenRouterClient', () => {
+  it('uses the OpenRouter gateway, bearer auth and site attribution', async () => {
+    const { fetch, calls } = mockFetch(
+      jsonResponse({ choices: [{ message: { content: 'routed' } }] }),
+    );
+    const client = new OpenRouterClient({ apiKey: 'sk-or-v1-abc', fetch });
+
+    const answer = await client.chat({
+      model: 'anthropic/claude-sonnet-4.5',
+      messages,
+    });
+
+    expect(answer).to.equal('routed');
+    expect(calls[0].url).to.equal(
+      'https://openrouter.ai/api/v1/chat/completions',
+    );
+    expect(calls[0].headers.Authorization).to.equal(
+      ['Bearer', 'sk-or-v1-abc'].join(' '),
+    );
+    expect(calls[0].headers['X-Title']).to.equal(OpenRouterClient.appTitle);
+    expect(calls[0].headers['HTTP-Referer']).to.equal(window.location.origin);
+    expect(calls[0].body.model).to.equal('anthropic/claude-sonnet-4.5');
+    expect(calls[0].body.messages).to.deep.equal(messages);
+  });
+
+  it('lets the site URL be overridden or hidden', async () => {
+    const { fetch, calls } = mockFetch(
+      jsonResponse({ choices: [{ message: { content: 'ok' } }] }),
+      jsonResponse({ choices: [{ message: { content: 'ok' } }] }),
+    );
+
+    await new OpenRouterClient({
+      apiKey: 'k',
+      siteUrl: 'https://example.com/app/',
+      fetch,
+    }).chat({ model: 'openai/gpt-4o-mini', messages });
+    await new OpenRouterClient({
+      apiKey: 'k',
+      siteUrl: '',
+      fetch,
+    }).chat({ model: 'openai/gpt-4o-mini', messages });
+
+    expect(calls[0].headers['HTTP-Referer']).to.equal(
+      'https://example.com/app',
+    );
+    expect(calls[1].headers).not.to.have.property('HTTP-Referer');
+  });
+
+  it('streams OpenAI-style SSE chunks and surfaces in-stream errors', async () => {
+    const { fetch } = mockFetch(
+      streamResponse([
+        sse('{"choices":[{"delta":{"content":"Hell"}}]}'),
+        sse('{"choices":[{"delta":{"content":"o"}}]}'),
+        sse('[DONE]'),
+      ]),
+      streamResponse([sse('{"error":{"message":"no endpoints found"}}')]),
+    );
+
+    const tokens = await collect(
+      new OpenRouterClient({ apiKey: 'k', fetch }).chat({
+        model: 'meta-llama/llama-3.3-70b-instruct',
+        messages,
+        stream: true,
+      }),
+    );
+    expect(tokens).to.deep.equal(['Hell', 'o']);
+
+    const error = await collect(
+      new OpenRouterClient({ apiKey: 'k', fetch }).chat({
+        model: 'unknown/model',
+        messages,
+        stream: true,
+      }),
+    ).catch(e => e);
+    expect(error).to.be.instanceOf(ProviderError);
+    expect(error.message).to.equal('OpenRouter error: no endpoints found');
+  });
+
+  it('requires an API key before any HTTP call', () => {
+    const { fetch, calls } = mockFetch();
+
+    expect(() =>
+      new OpenRouterClient({ fetch }).chat({
+        model: 'openai/gpt-4o-mini',
+        messages,
+      }),
+    ).to.throw(ProviderError, 'an API key is required');
+    expect(calls).to.have.length(0);
   });
 });
 
