@@ -1,0 +1,51 @@
+{
+  "name": "sea-lion-test-app",
+  "description": "Client-side AI chat application built with Lit and the @yesobo/sea-lion web components, following open-wc recommendations",
+  "license": "MIT",
+  "author": "imyesobo",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "start": "web-dev-server",
+    "build": "rimraf dist && rollup -c rollup.config.mjs",
+    "start:build": "web-dev-server --root-dir dist --app-index index.html --open",
+    "test": "web-test-runner --coverage",
+    "test:watch": "web-test-runner --watch",
+    "lint": "eslint . && prettier \"**/*.{js,mjs,html,json,md,css}\" --check",
+    "format": "eslint . --fix && prettier \"**/*.{js,mjs,html,json,md,css}\" --write",
+    "analyze": "cem analyze --litelement",
+    "prepare": "husky"
+  },
+  "dependencies": {
+    "@yesobo/sea-lion": "^1.0.1",
+    "lit": "^3.3.3"
+  },
+  "devDependencies": {
+    "@custom-elements-manifest/analyzer": "^0.11.0",
+    "@eslint/js": "^9.39.1",
+    "@open-wc/eslint-config": "^13.1.0",
+    "@open-wc/testing": "^5.0.0",
+    "@rollup/plugin-node-resolve": "^16.0.3",
+    "@rollup/plugin-terser": "^1.0.2",
+    "@web/dev-server": "^1.0.0",
+    "@web/rollup-plugin-html": "^4.0.0",
+    "@web/test-runner": "^1.0.0",
+    "eslint": "^9.39.1",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-plugin-lit": "^2.3.1",
+    "globals": "^16.5.0",
+    "husky": "^9.1.7",
+    "lint-staged": "^16.2.7",
+    "prettier": "^3.9.10",
+    "rimraf": "^6.1.2",
+    "rollup": "^4.66.0"
+  },
+  "lint-staged": {
+    "*.{js,mjs}": [
+      "eslint --fix",
+      "prettier --write"
+    ]
+  },
+  "customElements": "custom-elements.json"
+}
